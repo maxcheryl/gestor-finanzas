@@ -1,0 +1,10 @@
+CREATE DATABASE IF NOT EXISTS finanzas_usuario;
+CREATE DATABASE IF NOT EXISTS finanzas_ctas_finan;
+CREATE DATABASE IF NOT EXISTS finanzas_ingreso;
+CREATE DATABASE IF NOT EXISTS finanzas_gasto;
+CREATE DATABASE IF NOT EXISTS finanzas_comp_fut;
+CREATE DATABASE IF NOT EXISTS finanzas_presupuesto;
+CREATE DATABASE IF NOT EXISTS finanzas_meta;
+CREATE DATABASE IF NOT EXISTS finanzas_categoria;
+CREATE DATABASE IF NOT EXISTS finanzas_h_ahorro;
+CREATE DATABASE IF NOT EXISTS finanzas_reporte;
