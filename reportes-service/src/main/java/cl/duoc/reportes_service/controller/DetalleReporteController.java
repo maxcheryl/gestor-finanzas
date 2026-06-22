@@ -1,0 +1,171 @@
+package cl.duoc.reportes_service.controller;
+
+import cl.duoc.reportes_service.dto.DetalleReporteDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import cl.duoc.reportes_service.dto.DetalleReporteResponseDTO;
+import cl.duoc.reportes_service.service.DetalleReporteService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@Tag(name = "Detalles de reportes", description = "Operaciones relacionadas con detalles de reportes mensuales")
+@RestController
+@RequestMapping("/api/v1/detalles")
+public class DetalleReporteController {
+
+    @Autowired
+    private DetalleReporteService service;
+
+    // LISTAR
+    @Operation(summary = "Listar detalles", description = "Retorna todos los detalles de reportes registrados")
+    @GetMapping
+    public ResponseEntity<List<DetalleReporteResponseDTO>>
+    listar() {
+
+        List<DetalleReporteResponseDTO> detalles =
+                service.getDetalles();
+
+        if (detalles.isEmpty()) {
+
+            return ResponseEntity
+                    .noContent()
+                    .build();
+        }
+
+        return ResponseEntity.ok(
+                detalles
+        );
+    }
+
+    // BUSCAR POR ID
+    @Operation(summary = "Buscar detalle por ID", description = "Retorna un detalle de reporte segun su identificador")
+    @GetMapping("/{id}")
+    public ResponseEntity<DetalleReporteResponseDTO>
+    buscarPorId(
+            @PathVariable Integer id
+    ) {
+
+        Optional<DetalleReporteResponseDTO> detalle =
+                service.getDetalle(id);
+
+        return detalle
+                .map(ResponseEntity::ok)
+                .orElse(
+                        ResponseEntity
+                                .notFound()
+                                .build()
+                );
+    }
+
+    // GUARDAR
+    @Operation(summary = "Crear detalle", description = "Registra un nuevo detalle para un reporte mensual")
+    @PostMapping
+    public ResponseEntity<?> guardar(
+            @Valid @RequestBody DetalleReporteDTO dto,
+            BindingResult result
+    ) {
+        if (result.hasErrors()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("mensaje", obtenerMensajeValidacion(result)));
+        }
+
+        DetalleReporteDTO nuevo =
+                service.saveDetalle(dto);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(nuevo);
+    }
+
+    // ACTUALIZAR
+    @Operation(summary = "Actualizar detalle", description = "Modifica un detalle de reporte existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editar(
+            @PathVariable Integer id,
+            @Valid @RequestBody DetalleReporteDTO dto,
+            BindingResult result
+    ) {
+        if (result.hasErrors()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("mensaje", obtenerMensajeValidacion(result)));
+        }
+
+        try {
+
+            DetalleReporteDTO actualizado =
+                    service.updateDetalle(
+                            id,
+                            dto
+                    );
+
+            return ResponseEntity.ok(
+                    actualizado
+            );
+
+        } catch (RuntimeException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        }
+    }
+
+    // ELIMINAR
+    @Operation(summary = "Eliminar detalle", description = "Elimina un detalle de reporte por su identificador")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String>
+    eliminar(
+            @PathVariable Integer id
+    ) {
+
+        try {
+
+            service.deleteDetalle(id);
+
+            return ResponseEntity
+                    .ok(
+                            "Detalle eliminado correctamente"
+                    );
+
+        } catch (RuntimeException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        }
+    }
+
+    private String obtenerMensajeValidacion(BindingResult result) {
+
+        return result.getFieldErrors()
+                .stream()
+                .min((actual, siguiente) ->
+                        Integer.compare(
+                                ordenCampo(actual.getField()),
+                                ordenCampo(siguiente.getField())
+                        )
+                )
+                .map(error -> error.getDefaultMessage())
+                .orElse("Datos ingresados no son validos");
+    }
+
+    private int ordenCampo(String campo) {
+
+        return switch (campo) {
+            case "reporteId" -> 1;
+            case "categoriaId" -> 2;
+            case "totalGastado" -> 3;
+            default -> 100;
+        };
+    }
+}

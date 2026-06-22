@@ -1,0 +1,89 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: usuarios-service
+            uri: http://localhost:8081
+            predicates:
+              - Path=/api/v1/usuarios,/api/v1/usuarios/**
+
+          - id: ctas-finan-entidades-service
+            uri: http://localhost:8082
+            predicates:
+              - Path=/api/v1/entidades-financieras,/api/v1/entidades-financieras/**
+
+          - id: ctas-finan-metodos-service
+            uri: http://localhost:8082
+            predicates:
+              - Path=/api/v1/metodos-pago,/api/v1/metodos-pago/**
+
+          - id: ingresos-fijos-service
+            uri: http://localhost:8083
+            predicates:
+              - Path=/api/v1/ingresos-fijos,/api/v1/ingresos-fijos/**
+
+          - id: ingresos-extras-service
+            uri: http://localhost:8083
+            predicates:
+              - Path=/api/v1/ingresos-extras,/api/v1/ingresos-extras/**
+
+          - id: gastos-service
+            uri: http://localhost:8084
+            predicates:
+              - Path=/api/v1/gastos,/api/v1/gastos/**
+
+          - id: gastos-recurrentes-service
+            uri: http://localhost:8084
+            predicates:
+              - Path=/api/v1/gastos-recurrentes,/api/v1/gastos-recurrentes/**
+
+          - id: compras-service
+            uri: http://localhost:8085
+            predicates:
+              - Path=/api/v1/comprafutura,/api/v1/comprafutura/**
+
+          - id: presupuestos-service
+            uri: http://localhost:8086
+            predicates:
+              - Path=/api/v1/presupuestomen,/api/v1/presupuestomen/**
+
+          - id: metas-service
+            uri: http://localhost:8087
+            predicates:
+              - Path=/api/v1/metas,/api/v1/metas/**
+
+          - id: categorias-service
+            uri: http://localhost:8088
+            predicates:
+              - Path=/api/v1/categorias,/api/v1/categorias/**
+
+          - id: categorias-personalizadas-service
+            uri: http://localhost:8088
+            predicates:
+              - Path=/api/v1/categorias-pers,/api/v1/categorias-pers/**
+
+          - id: his-ahorro-service
+            uri: http://localhost:8089
+            predicates:
+              - Path=/api/v1/ahorros,/api/v1/ahorros/**
+
+          - id: reportes-service
+            uri: http://localhost:8090
+            predicates:
+              - Path=/api/v1/reportes,/api/v1/reportes/**
+
+          - id: detalles-reportes-service
+            uri: http://localhost:8090
+            predicates:
+              - Path=/api/v1/detalles,/api/v1/detalles/**
+
+eureka:
+  client:
+    enabled: false
