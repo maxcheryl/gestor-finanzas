@@ -6,6 +6,7 @@ import cl.duoc.reportes_service.dto.DetalleReporteDTO;
 import cl.duoc.reportes_service.dto.DetalleReporteResponseDTO;
 import cl.duoc.reportes_service.dto.ReporteMensualResponseDTO;
 import cl.duoc.reportes_service.model.DetalleReporte;
+import cl.duoc.reportes_service.model.ReporteMensual;
 import cl.duoc.reportes_service.repository.DetalleReporteRepository;
 import cl.duoc.reportes_service.repository.ReporteMensualRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +88,9 @@ public class DetalleReporteService {
         DetalleReporte detalle =
                 new DetalleReporte();
 
-        detalle.setReporteId(dto.getReporteId());
+        ReporteMensual reporte = reporteRepository.findById(dto.getReporteId())
+                .orElseThrow(() -> new RuntimeException("El reporte no existe."));
+        detalle.setReporte(reporte);
         detalle.setCategoriaId(dto.getCategoriaId());
         detalle.setTotalGastado(
                 dto.getTotalGastado()
@@ -98,7 +101,7 @@ public class DetalleReporteService {
 
         return new DetalleReporteDTO(
                 nuevo.getId(),
-                nuevo.getReporteId(),
+                nuevo.getReporte().getId(),
                 nuevo.getCategoriaId(),
                 nuevo.getTotalGastado()
         );
@@ -149,7 +152,9 @@ public class DetalleReporteService {
             );
         }
 
-        existe.setReporteId(dto.getReporteId());
+        ReporteMensual reporte = reporteRepository.findById(dto.getReporteId())
+                .orElseThrow(() -> new RuntimeException("El reporte no existe."));
+        existe.setReporte(reporte);
         existe.setCategoriaId(dto.getCategoriaId());
         existe.setTotalGastado(
                 dto.getTotalGastado()
@@ -160,7 +165,7 @@ public class DetalleReporteService {
 
         return new DetalleReporteDTO(
                 actualizado.getId(),
-                actualizado.getReporteId(),
+                actualizado.getReporte().getId(),
                 actualizado.getCategoriaId(),
                 actualizado.getTotalGastado()
         );
@@ -184,7 +189,7 @@ public class DetalleReporteService {
     private DetalleReporteResponseDTO toResponseDTO(DetalleReporte detalle) {
 
         ReporteMensualResponseDTO reporte =
-                reporteMensualService.getReporte(detalle.getReporteId())
+                reporteMensualService.getReporte(detalle.getReporte().getId())
                         .orElse(null);
 
         CategoriaDTO categoria = null;

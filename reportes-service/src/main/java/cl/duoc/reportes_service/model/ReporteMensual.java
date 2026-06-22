@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -36,4 +38,7 @@ public class ReporteMensual {
 
     @Column(name = "saldo_neto", nullable = false)
     private Double saldoNeto;
+
+    @OneToMany(mappedBy = "reporte", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DetalleReporte> detalles = new ArrayList<>();
 }

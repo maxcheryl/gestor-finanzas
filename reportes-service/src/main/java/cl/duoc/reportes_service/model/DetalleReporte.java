@@ -19,8 +19,9 @@ public class DetalleReporte {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "reporte_id", nullable = false)
-    private Integer reporteId;
+    @ManyToOne
+    @JoinColumn(name = "reporte_id", nullable = false)
+    private ReporteMensual reporte;
 
     @Column(name = "categoria_id", nullable = false)
     private Integer categoriaId;
