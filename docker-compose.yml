@@ -1,0 +1,186 @@
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql_database
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db:/docker-entrypoint-initdb.d
+
+  eureka:
+    restart: always
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: eureka
+    ports:
+      - "8761:8761"
+
+  usuarios-service:
+    restart: always
+    build:
+      context: ./usuarios-service
+      dockerfile: Dockerfile
+    container_name: usuarios
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/finanzas_usuario
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-db
+      - eureka
+
+  ctas-finan-service:
+    restart: always
+    build:
+      context: ./ctas-finan-service
+      dockerfile: Dockerfile
+    container_name: ctas-finan
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/finanzas_ctas_finan
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-db
+      - eureka
+
+  ingresos-service:
+    restart: always
+    build:
+      context: ./ingresos-service
+      dockerfile: Dockerfile
+    container_name: ingresos
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/finanzas_ingreso
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-db
+      - eureka
+
+  gastos-service:
+    restart: always
+    build:
+      context: ./gastos-service
+      dockerfile: Dockerfile
+    container_name: gastos
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/finanzas_gasto
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-db
+      - eureka
+
+  compras-service:
+    restart: always
+    build:
+      context: ./compras-service
+      dockerfile: Dockerfile
+    container_name: compras
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/finanzas_comp_fut
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-db
+      - eureka
+
+  presupuestos-service:
+    restart: always
+    build:
+      context: ./presupuestos-service
+      dockerfile: Dockerfile
+    container_name: presupuestos
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/finanzas_presupuesto
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-db
+      - eureka
+
+  metas-service:
+    restart: always
+    build:
+      context: ./metas-service
+      dockerfile: Dockerfile
+    container_name: metas
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/finanzas_meta
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-db
+      - eureka
+
+  categorias-service:
+    restart: always
+    build:
+      context: ./categorias-service
+      dockerfile: Dockerfile
+    container_name: categorias
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/finanzas_categoria
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-db
+      - eureka
+
+  his-ahorro-service:
+    restart: always
+    build:
+      context: ./his-ahorro-service
+      dockerfile: Dockerfile
+    container_name: his-ahorro
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/finanzas_h_ahorro
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-db
+      - eureka
+
+  reportes-service:
+    restart: always
+    build:
+      context: ./reportes-service
+      dockerfile: Dockerfile
+    container_name: reportes
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/finanzas_reporte
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-db
+      - eureka
+
+  api-gateway:
+    restart: always
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+    depends_on:
+      - eureka
+
+volumes:
+  mysql_data:
