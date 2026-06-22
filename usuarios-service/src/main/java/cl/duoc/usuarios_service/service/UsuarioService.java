@@ -47,7 +47,8 @@ public class UsuarioService {
 
         Usuario usuario = new Usuario();
         usuario.setNombre(dto.getNombre());
-
+        usuario.setApellidoPaterno(dto.getApellidoPaterno());
+        usuario.setApellidoMaterno(dto.getApellidoMaterno());
         Usuario guardado = repository.save(usuario);
 
         return new UsuarioDTO(
@@ -66,6 +67,8 @@ public class UsuarioService {
                         new RuntimeException("Usuario no encontrado"));
 
         existe.setNombre(dto.getNombre());
+        existe.setApellidoPaterno(dto.getApellidoPaterno());
+        existe.setApellidoMaterno(dto.getApellidoMaterno());
 
         Usuario actualizado = repository.save(existe);
 
