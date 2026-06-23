@@ -3,6 +3,7 @@ package cl.duoc.his_ahorro_service.service;
 import cl.duoc.his_ahorro_service.client.MetaMensualClient;
 import cl.duoc.his_ahorro_service.client.UsuarioClient;
 import cl.duoc.his_ahorro_service.dto.AhorroAcumuladoDTO;
+import cl.duoc.his_ahorro_service.dto.AhorroAcumuladoResponseDTO;
 import cl.duoc.his_ahorro_service.dto.MetaMensualDTO;
 import cl.duoc.his_ahorro_service.dto.UsuarioDTO;
 import cl.duoc.his_ahorro_service.model.AhorroAcumulado;
@@ -25,21 +26,47 @@ public class AhorroAcumuladoService {
     @Autowired
     private UsuarioClient usuarioClient;
 
-    // LISTAR
-    public List<AhorroAcumulado> getAhorros() {
+    // MAPPER ENTITY -> RESPONSE DTO
+    private AhorroAcumuladoResponseDTO toResponseDTO(
+            AhorroAcumulado ahorro
+    ) {
 
-        return repository.findAll();
+        UsuarioDTO usuario =
+                usuarioClient.obtenerUsuario(
+                        ahorro.getUsuarioId()
+                );
+
+        MetaMensualDTO meta =
+                metaMensualClient.obtenerMeta(
+                        ahorro.getMetaId()
+                );
+
+        return new AhorroAcumuladoResponseDTO(
+                ahorro.getId(),
+                usuario,
+                meta,
+                ahorro.getSaldoTotalAhorrado()
+        );
+    }
+
+    // LISTAR
+    public List<AhorroAcumuladoResponseDTO> getAhorros() {
+
+        return repository.findAll()
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     // BUSCAR POR ID
-    public Optional<AhorroAcumulado>
-    getAhorro(Integer id) {
+    public Optional<AhorroAcumuladoResponseDTO> getAhorro(Integer id) {
 
-        return repository.findById(id);
+        return repository.findById(id)
+                .map(this::toResponseDTO);
     }
 
     // ACUMULAR AHORRO
-    public AhorroAcumulado saveAhorro(
+    public AhorroAcumuladoResponseDTO saveAhorro(
             AhorroAcumuladoDTO dto
     ) {
 
@@ -63,10 +90,9 @@ public class AhorroAcumuladoService {
         // VALIDAR USUARIO
         try {
 
-            UsuarioDTO usuario =
-                    usuarioClient.obtenerUsuario(
-                            dto.getUsuarioId()
-                    );
+            usuarioClient.obtenerUsuario(
+                    dto.getUsuarioId()
+            );
 
         } catch (Exception e) {
 
@@ -97,7 +123,7 @@ public class AhorroAcumuladoService {
 
         AhorroAcumulado ahorro;
 
-        // SI EXISTE → ACUMULAR
+        // SI EXISTE -> ACUMULAR
         if (existente.isPresent()) {
 
             ahorro = existente.get();
@@ -112,18 +138,30 @@ public class AhorroAcumuladoService {
 
         } else {
 
-            // SI NO EXISTE → CREAR
+            // SI NO EXISTE -> CREAR
             ahorro = new AhorroAcumulado();
 
-            ahorro.setMetaId(dto.getMetaId());
-            ahorro.setUsuarioId(dto.getUsuarioId());
+            ahorro.setMetaId(
+                    dto.getMetaId()
+            );
+
+            ahorro.setUsuarioId(
+                    dto.getUsuarioId()
+            );
 
             ahorro.setSaldoTotalAhorrado(
                     cuotaMensual
             );
         }
 
-        return repository.save(ahorro);
+        AhorroAcumulado guardado =
+                repository.save(
+                        ahorro
+                );
+
+        return toResponseDTO(
+                guardado
+        );
     }
 
     // ELIMINAR

@@ -1,9 +1,9 @@
 package cl.duoc.his_ahorro_service.controller;
 
 import cl.duoc.his_ahorro_service.dto.AhorroAcumuladoDTO;
+import cl.duoc.his_ahorro_service.dto.AhorroAcumuladoResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import cl.duoc.his_ahorro_service.model.AhorroAcumulado;
 import cl.duoc.his_ahorro_service.service.AhorroAcumuladoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +27,9 @@ public class AhorroAcumuladoController {
     // LISTAR
     @Operation(summary = "Listar ahorros", description = "Retorna todos los registros de ahorro acumulado")
     @GetMapping
-    public ResponseEntity<List<AhorroAcumulado>>
-    listar() {
+    public ResponseEntity<List<AhorroAcumuladoResponseDTO>> listar() {
 
-        List<AhorroAcumulado> ahorros =
+        List<AhorroAcumuladoResponseDTO> ahorros =
                 service.getAhorros();
 
         if (ahorros.isEmpty()) {
@@ -46,14 +45,13 @@ public class AhorroAcumuladoController {
     }
 
     // BUSCAR POR ID
-    @Operation(summary = "Buscar ahorro por ID", description = "Retorna un registro de ahorro acumulado segun su identificador")
+    @Operation(summary = "Buscar ahorro por ID", description = "Retorna un registro de ahorro acumulado según su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<AhorroAcumulado>
-    buscarPorId(
+    public ResponseEntity<AhorroAcumuladoResponseDTO> buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<AhorroAcumulado> ahorro =
+        Optional<AhorroAcumuladoResponseDTO> ahorro =
                 service.getAhorro(id);
 
         return ahorro
@@ -72,11 +70,20 @@ public class AhorroAcumuladoController {
             @Valid @RequestBody AhorroAcumuladoDTO dto,
             BindingResult result
     ) {
+
         if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(
+                            Map.of(
+                                    "mensaje",
+                                    result.getFieldError().getDefaultMessage()
+                            )
+                    );
         }
 
-        AhorroAcumulado nuevo =
+        AhorroAcumuladoResponseDTO nuevo =
                 service.saveAhorro(dto);
 
         return ResponseEntity
@@ -87,8 +94,7 @@ public class AhorroAcumuladoController {
     // ELIMINAR
     @Operation(summary = "Eliminar ahorro", description = "Elimina un registro de ahorro acumulado por su identificador")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String>
-    eliminar(
+    public ResponseEntity<String> eliminar(
             @PathVariable Integer id
     ) {
 
