@@ -9,11 +9,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Ahorros", description = "Operaciones relacionadas con ahorro acumulado por usuario y meta")
@@ -66,22 +64,10 @@ public class AhorroAcumuladoController {
     // ACUMULAR AHORRO
     @Operation(summary = "Crear ahorro", description = "Registra un nuevo monto de ahorro acumulado")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody AhorroAcumuladoDTO dto,
-            BindingResult result
+    public ResponseEntity<AhorroAcumuladoResponseDTO> guardar(
+            @Valid @RequestBody AhorroAcumuladoDTO dto
     ) {
 
-        if (result.hasErrors()) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(
-                            Map.of(
-                                    "mensaje",
-                                    result.getFieldError().getDefaultMessage()
-                            )
-                    );
-        }
 
         AhorroAcumuladoResponseDTO nuevo =
                 service.saveAhorro(dto);

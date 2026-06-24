@@ -9,11 +9,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Detalles de reportes", description = "Operaciones relacionadas con detalles de reportes mensuales")
@@ -68,15 +66,9 @@ public class DetalleReporteController {
     // GUARDAR
     @Operation(summary = "Crear detalle", description = "Registra un nuevo detalle para un reporte mensual")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody DetalleReporteDTO dto,
-            BindingResult result
+    public ResponseEntity<DetalleReporteDTO> guardar(
+            @Valid @RequestBody DetalleReporteDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("mensaje", obtenerMensajeValidacion(result)));
-        }
 
         DetalleReporteDTO nuevo =
                 service.saveDetalle(dto);
@@ -91,14 +83,8 @@ public class DetalleReporteController {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(
             @PathVariable Integer id,
-            @Valid @RequestBody DetalleReporteDTO dto,
-            BindingResult result
+            @Valid @RequestBody DetalleReporteDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("mensaje", obtenerMensajeValidacion(result)));
-        }
 
         try {
 
@@ -145,27 +131,5 @@ public class DetalleReporteController {
         }
     }
 
-    private String obtenerMensajeValidacion(BindingResult result) {
 
-        return result.getFieldErrors()
-                .stream()
-                .min((actual, siguiente) ->
-                        Integer.compare(
-                                ordenCampo(actual.getField()),
-                                ordenCampo(siguiente.getField())
-                        )
-                )
-                .map(error -> error.getDefaultMessage())
-                .orElse("Datos ingresados no son validos");
-    }
-
-    private int ordenCampo(String campo) {
-
-        return switch (campo) {
-            case "reporteId" -> 1;
-            case "categoriaId" -> 2;
-            case "totalGastado" -> 3;
-            default -> 100;
-        };
-    }
 }

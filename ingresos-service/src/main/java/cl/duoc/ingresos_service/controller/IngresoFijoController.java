@@ -8,11 +8,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Ingresos fijos", description = "Operaciones relacionadas con ingresos fijos de usuarios")
@@ -53,13 +51,9 @@ public class IngresoFijoController {
 
     @Operation(summary = "Crear ingreso fijo", description = "Registra un nuevo ingreso fijo")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody IngresoFijoDTO dto,
-            BindingResult result
+    public ResponseEntity<IngresoFijoDTO> guardar(
+            @Valid @RequestBody IngresoFijoDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         IngresoFijoDTO nuevo =
                 ingresoFijoService.saveIngresoFijo(dto);
@@ -73,12 +67,8 @@ public class IngresoFijoController {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(
             @PathVariable Integer id,
-            @Valid @RequestBody IngresoFijoDTO dto,
-            BindingResult result
+            @Valid @RequestBody IngresoFijoDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         try {
             IngresoFijoDTO actualizado =

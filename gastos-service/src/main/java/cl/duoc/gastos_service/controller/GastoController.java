@@ -9,11 +9,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Gastos", description = "Operaciones relacionadas con gastos de usuarios")
@@ -54,13 +52,9 @@ public class GastoController {
 
     @Operation(summary = "Crear gasto", description = "Registra un nuevo gasto")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody GastoDTO dto,
-            BindingResult result
+    public ResponseEntity<GastoDTO> guardar(
+            @Valid @RequestBody GastoDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         GastoDTO nuevo =
                 gastoService.saveGasto(dto);
@@ -74,12 +68,8 @@ public class GastoController {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(
             @PathVariable Integer id,
-            @Valid @RequestBody GastoDTO dto,
-            BindingResult result
+            @Valid @RequestBody GastoDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         try {
             GastoDTO actualizado =

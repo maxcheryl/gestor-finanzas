@@ -9,11 +9,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Compras futuras", description = "Operaciones relacionadas con compras planificadas por usuarios")
@@ -52,13 +50,9 @@ public class CompraFuturaController {
 
     @Operation(summary = "Crear compra futura", description = "Registra una nueva compra futura")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody CompraFuturaDTO dto,
-            BindingResult result
+    public ResponseEntity<CompraFuturaDTO> guardar(
+            @Valid @RequestBody CompraFuturaDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
         CompraFuturaDTO nueva =
                 compraFuService.saveCompra(dto);
 
@@ -71,12 +65,8 @@ public class CompraFuturaController {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(
             @PathVariable Integer id,
-            @Valid @RequestBody CompraFuturaDTO dto,
-            BindingResult result
+            @Valid @RequestBody CompraFuturaDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
         try {
             CompraFuturaDTO actualizada =
                     compraFuService.updateCompra(id, dto);

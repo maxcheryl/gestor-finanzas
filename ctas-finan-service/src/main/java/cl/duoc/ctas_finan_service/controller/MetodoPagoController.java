@@ -8,11 +8,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Metodos de pago", description = "Operaciones relacionadas con metodos de pago")
@@ -63,13 +61,9 @@ public class MetodoPagoController {
 
     @Operation(summary = "Crear metodo de pago", description = "Registra un nuevo metodo de pago")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody MetodoPagoDTO dto,
-            BindingResult result
+    public ResponseEntity<MetodoPagoDTO> guardar(
+            @Valid @RequestBody MetodoPagoDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         MetodoPagoDTO nuevo =
                 service.saveMetodoPago(dto);
@@ -83,12 +77,8 @@ public class MetodoPagoController {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(
             @PathVariable Integer id,
-            @Valid @RequestBody MetodoPagoDTO dto,
-            BindingResult result
+            @Valid @RequestBody MetodoPagoDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         try {
 

@@ -8,11 +8,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Usuarios", description = "Operaciones relacionadas con usuarios")
@@ -53,13 +51,9 @@ public class UsuarioController {
 
     @Operation(summary = "Crear usuario", description = "Registra un nuevo usuario")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody UsuarioDTO dto,
-            BindingResult result
+    public ResponseEntity<UsuarioDTO> guardar(
+            @Valid @RequestBody UsuarioDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         UsuarioDTO nuevo =
                 service.saveUsuario(dto);
@@ -73,12 +67,8 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(
             @PathVariable Integer id,
-            @Valid @RequestBody UsuarioDTO dto,
-            BindingResult result
+            @Valid @RequestBody UsuarioDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         try {
             UsuarioDTO actualizado =

@@ -9,11 +9,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Reportes mensuales", description = "Operaciones relacionadas con reportes mensuales financieros")
@@ -68,13 +66,9 @@ public class ReporteMensualController {
     // GUARDAR
     @Operation(summary = "Crear reporte", description = "Registra un nuevo reporte mensual")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody ReporteMensualDTO dto,
-            BindingResult result
+    public ResponseEntity<ReporteMensualDTO> guardar(
+            @Valid @RequestBody ReporteMensualDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         ReporteMensualDTO nuevo =
                 service.saveReporte(dto);
@@ -89,12 +83,8 @@ public class ReporteMensualController {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(
             @PathVariable Integer id,
-            @Valid @RequestBody ReporteMensualDTO dto,
-            BindingResult result
+            @Valid @RequestBody ReporteMensualDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         try {
 

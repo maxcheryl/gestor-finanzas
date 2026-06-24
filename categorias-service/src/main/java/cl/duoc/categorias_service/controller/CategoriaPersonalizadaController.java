@@ -8,11 +8,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Categorias personalizadas", description = "Operaciones relacionadas con categorias personalizadas de usuarios")
@@ -51,13 +49,9 @@ public class CategoriaPersonalizadaController {
 
     @Operation(summary = "Crear categoria personalizada", description = "Registra una nueva categoria personalizada")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody CategoriaPersonalizadaDTO dto,
-            BindingResult result
+    public ResponseEntity<CategoriaPersonalizadaDTO> guardar(
+            @Valid @RequestBody CategoriaPersonalizadaDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
         CategoriaPersonalizadaDTO nueva =
                 catPersService.saveCategoria(dto);
 
@@ -70,12 +64,8 @@ public class CategoriaPersonalizadaController {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(
             @PathVariable Integer id,
-            @Valid @RequestBody CategoriaPersonalizadaDTO dto,
-            BindingResult result
+            @Valid @RequestBody CategoriaPersonalizadaDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
         try {
             CategoriaPersonalizadaDTO actualizada =
                     catPersService.updateCategoria(id, dto);

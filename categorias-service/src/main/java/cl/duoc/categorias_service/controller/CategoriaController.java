@@ -8,11 +8,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Categorias", description = "Operaciones relacionadas con las categorias base de ingresos y gastos")
@@ -51,13 +49,9 @@ public class CategoriaController {
 
     @Operation(summary = "Crear categoria", description = "Registra una nueva categoria base")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody CategoriaDTO dto,
-            BindingResult result
+    public ResponseEntity<CategoriaDTO> guardar(
+            @Valid @RequestBody CategoriaDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
         CategoriaDTO nueva =
                 categoriaService.saveCategoria(dto);
 
@@ -70,12 +64,8 @@ public class CategoriaController {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(
             @PathVariable Integer id,
-            @Valid @RequestBody CategoriaDTO dto,
-            BindingResult result
+            @Valid @RequestBody CategoriaDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
         try {
             CategoriaDTO actualizada =
                     categoriaService.updateCategoria(id, dto);

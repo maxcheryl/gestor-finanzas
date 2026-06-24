@@ -9,11 +9,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Gastos recurrentes", description = "Operaciones relacionadas con gastos recurrentes de usuarios")
@@ -54,13 +52,9 @@ public class GastoRecurrenteController {
 
     @Operation(summary = "Crear gasto recurrente", description = "Registra un nuevo gasto recurrente")
     @PostMapping
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody GastoRecurrenteDTO dto,
-            BindingResult result
+    public ResponseEntity<GastoRecurrenteDTO> guardar(
+            @Valid @RequestBody GastoRecurrenteDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         GastoRecurrenteDTO nuevo =
                 gastoRecurrenteService.saveGastoRecurrente(dto);
@@ -74,12 +68,8 @@ public class GastoRecurrenteController {
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(
             @PathVariable Integer id,
-            @Valid @RequestBody GastoRecurrenteDTO dto,
-            BindingResult result
+            @Valid @RequestBody GastoRecurrenteDTO dto
     ) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", result.getFieldError().getDefaultMessage()));
-        }
 
         try {
             GastoRecurrenteDTO actualizado =
