@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Categorias personalizadas", description = "Operaciones relacionadas con categorias personalizadas de usuarios")
 @RestController
@@ -36,15 +39,27 @@ public class CategoriaPersonalizadaController {
 
     @Operation(summary = "Buscar categoria personalizada por ID", description = "Retorna una categoria personalizada segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<CategoriaPersonalizadaDTO> buscarPorId(
+    public EntityModel<CategoriaPersonalizadaDTO> buscarPorId(
             @PathVariable Integer id
     ) {
-        Optional<CategoriaPersonalizadaDTO> categoria =
-                catPersService.getCategoria(id);
+        CategoriaPersonalizadaDTO categoria =
+                catPersService.getCategoria(id).orElseThrow();
 
-        return categoria
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build()); // 404
+        EntityModel<CategoriaPersonalizadaDTO> model = EntityModel.of(categoria);
+
+        model.add(
+                linkTo(
+                        methodOn(CategoriaPersonalizadaController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(CategoriaPersonalizadaController.class).listar()
+                ).withRel("Todas-las-categorias-personalizadas")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear categoria personalizada", description = "Registra una nueva categoria personalizada")

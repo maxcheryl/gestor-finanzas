@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Entidades financieras", description = "Operaciones relacionadas con entidades financieras de usuarios")
 @RestController
@@ -43,21 +46,29 @@ public class EntiFinanController {
 
     @Operation(summary = "Buscar entidad financiera por ID", description = "Retorna una entidad financiera segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<EntiFinanResponseDTO>
+    public EntityModel<EntiFinanResponseDTO>
     buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<EntiFinanResponseDTO> entidad =
-                service.getEntiFinan(id);
+        EntiFinanResponseDTO entidad =
+                service.getEntiFinan(id).orElseThrow();
 
-        return entidad
-                .map(ResponseEntity::ok)
-                .orElse(
-                        ResponseEntity
-                                .notFound()
-                                .build()
-                );
+        EntityModel<EntiFinanResponseDTO> model = EntityModel.of(entidad);
+
+        model.add(
+                linkTo(
+                        methodOn(EntiFinanController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(EntiFinanController.class).listar()
+                ).withRel("Todas-las-entidades")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear entidad financiera", description = "Registra una nueva entidad financiera")

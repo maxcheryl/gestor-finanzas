@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Gastos", description = "Operaciones relacionadas con gastos de usuarios")
 @RestController
@@ -38,16 +41,28 @@ public class GastoController {
 
     @Operation(summary = "Buscar gasto por ID", description = "Retorna un gasto segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<GastoResponseDTO> buscarPorId(
+    public EntityModel<GastoResponseDTO> buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<GastoResponseDTO> gasto =
-                gastoService.getGasto(id);
+        GastoResponseDTO gasto =
+                gastoService.getGasto(id).orElseThrow();
 
-        return gasto
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        EntityModel<GastoResponseDTO> model = EntityModel.of(gasto);
+
+        model.add(
+                linkTo(
+                        methodOn(GastoController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(GastoController.class).listar()
+                ).withRel("Todos-los-gastos")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear gasto", description = "Registra un nuevo gasto")

@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Compras futuras", description = "Operaciones relacionadas con compras planificadas por usuarios")
 @RestController
@@ -37,15 +40,27 @@ public class CompraFuturaController {
 
     @Operation(summary = "Buscar compra futura por ID", description = "Retorna una compra futura segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<CompraFuturaDTO> buscarPorId(
+    public EntityModel<CompraFuturaDTO> buscarPorId(
             @PathVariable Integer id
     ) {
-        Optional<CompraFuturaDTO> compra =
-                compraFuService.getCompra(id);
+        CompraFuturaDTO compra =
+                compraFuService.getCompra(id).orElseThrow();
 
-        return compra
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build()); // 404
+        EntityModel<CompraFuturaDTO> model = EntityModel.of(compra);
+
+        model.add(
+                linkTo(
+                        methodOn(CompraFuturaController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(CompraFuturaController.class).listar()
+                ).withRel("Todas-las-compras")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear compra futura", description = "Registra una nueva compra futura")

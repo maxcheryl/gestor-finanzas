@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Categorias", description = "Operaciones relacionadas con las categorias base de ingresos y gastos")
 @RestController
@@ -36,15 +39,27 @@ public class CategoriaController {
 
     @Operation(summary = "Buscar categoria por ID", description = "Retorna una categoria base segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<CategoriaDTO> buscarPorId(
+    public EntityModel<CategoriaDTO> buscarPorId(
             @PathVariable Integer id
     ) {
-        Optional<CategoriaDTO> categoria =
-                categoriaService.getCategoria(id);
+        CategoriaDTO categoria =
+                categoriaService.getCategoria(id).orElseThrow();
 
-        return categoria
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build()); // 404
+        EntityModel<CategoriaDTO> model = EntityModel.of(categoria);
+
+        model.add(
+                linkTo(
+                        methodOn(CategoriaController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(CategoriaController.class).listar()
+                ).withRel("Todas-las-categorias")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear categoria", description = "Registra una nueva categoria base")

@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Metodos de pago", description = "Operaciones relacionadas con metodos de pago")
 @RestController
@@ -42,21 +45,29 @@ public class MetodoPagoController {
 
     @Operation(summary = "Buscar metodo de pago por ID", description = "Retorna un metodo de pago segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<MetodoPagoDTO>
+    public EntityModel<MetodoPagoDTO>
     buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<MetodoPagoDTO> metodo =
-                service.getMetodoPago(id);
+        MetodoPagoDTO metodo =
+                service.getMetodoPago(id).orElseThrow();
 
-        return metodo
-                .map(ResponseEntity::ok)
-                .orElse(
-                        ResponseEntity
-                                .notFound()
-                                .build()
-                );
+        EntityModel<MetodoPagoDTO> model = EntityModel.of(metodo);
+
+        model.add(
+                linkTo(
+                        methodOn(MetodoPagoController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(MetodoPagoController.class).listar()
+                ).withRel("Todos-los-metodos-pago")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear metodo de pago", description = "Registra un nuevo metodo de pago")

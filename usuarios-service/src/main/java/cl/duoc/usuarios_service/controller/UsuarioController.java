@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Usuarios", description = "Operaciones relacionadas con usuarios")
 @RestController
@@ -37,16 +40,28 @@ public class UsuarioController {
 
     @Operation(summary = "Buscar usuario por ID", description = "Retorna un usuario segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioDTO> buscarPorId(
+    public EntityModel<UsuarioDTO> buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<UsuarioDTO> usuario =
-                service.getUsuario(id);
+        UsuarioDTO usuario =
+                service.getUsuario(id).orElseThrow();
 
-        return usuario
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        EntityModel<UsuarioDTO> model = EntityModel.of(usuario);
+
+        model.add(
+                linkTo(
+                        methodOn(UsuarioController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(UsuarioController.class).listar()
+                ).withRel("Todos-los-usuarios")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear usuario", description = "Registra un nuevo usuario")

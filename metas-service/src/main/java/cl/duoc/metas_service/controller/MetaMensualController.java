@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Metas mensuales", description = "Operaciones relacionadas con metas mensuales de ahorro")
 @RestController
@@ -38,16 +41,28 @@ public class MetaMensualController {
 
     @Operation(summary = "Buscar meta por ID", description = "Retorna una meta mensual segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<MetaMensualResponseDTO> buscarPorId(
+    public EntityModel<MetaMensualResponseDTO> buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<MetaMensualResponseDTO> meta =
-                metaService.getMeta(id);
+        MetaMensualResponseDTO meta =
+                metaService.getMeta(id).orElseThrow();
 
-        return meta
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        EntityModel<MetaMensualResponseDTO> model = EntityModel.of(meta);
+
+        model.add(
+                linkTo(
+                        methodOn(MetaMensualController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(MetaMensualController.class).listar()
+                ).withRel("Todas-las-metas")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear meta", description = "Registra una nueva meta mensual")

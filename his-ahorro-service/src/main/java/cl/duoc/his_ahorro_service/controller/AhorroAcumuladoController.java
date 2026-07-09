@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Ahorros", description = "Operaciones relacionadas con ahorro acumulado por usuario y meta")
 @RestController
@@ -45,20 +48,28 @@ public class AhorroAcumuladoController {
     // BUSCAR POR ID
     @Operation(summary = "Buscar ahorro por ID", description = "Retorna un registro de ahorro acumulado según su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<AhorroAcumuladoResponseDTO> buscarPorId(
+    public EntityModel<AhorroAcumuladoResponseDTO> buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<AhorroAcumuladoResponseDTO> ahorro =
-                service.getAhorro(id);
+        AhorroAcumuladoResponseDTO ahorro =
+                service.getAhorro(id).orElseThrow();
 
-        return ahorro
-                .map(ResponseEntity::ok)
-                .orElse(
-                        ResponseEntity
-                                .notFound()
-                                .build()
-                );
+        EntityModel<AhorroAcumuladoResponseDTO> model = EntityModel.of(ahorro);
+
+        model.add(
+                linkTo(
+                        methodOn(AhorroAcumuladoController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(AhorroAcumuladoController.class).listar()
+                ).withRel("Todos-los-ahorros")
+        );
+
+        return model;
     }
 
     // ACUMULAR AHORRO

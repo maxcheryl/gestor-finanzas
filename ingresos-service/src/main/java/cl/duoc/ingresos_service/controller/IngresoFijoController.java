@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Ingresos fijos", description = "Operaciones relacionadas con ingresos fijos de usuarios")
 @RestController
@@ -37,16 +40,28 @@ public class IngresoFijoController {
 
     @Operation(summary = "Buscar ingreso fijo por ID", description = "Retorna un ingreso fijo segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<IngresoFijoResponseDTO> buscarPorId(
+    public EntityModel<IngresoFijoResponseDTO> buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<IngresoFijoResponseDTO> ingreso =
-                ingresoFijoService.getIngresoFijo(id);
+        IngresoFijoResponseDTO ingreso =
+                ingresoFijoService.getIngresoFijo(id).orElseThrow();
 
-        return ingreso
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        EntityModel<IngresoFijoResponseDTO> model = EntityModel.of(ingreso);
+
+        model.add(
+                linkTo(
+                        methodOn(IngresoFijoController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(IngresoFijoController.class).listar()
+                ).withRel("Todos-los-ingresos-fijos")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear ingreso fijo", description = "Registra un nuevo ingreso fijo")

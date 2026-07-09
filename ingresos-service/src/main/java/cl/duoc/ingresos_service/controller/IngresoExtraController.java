@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Ingresos extras", description = "Operaciones relacionadas con ingresos extras de usuarios")
 @RestController
@@ -38,16 +41,28 @@ public class IngresoExtraController {
 
     @Operation(summary = "Buscar ingreso extra por ID", description = "Retorna un ingreso extra segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<IngresoExtraResponseDTO> buscarPorId(
+    public EntityModel<IngresoExtraResponseDTO> buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<IngresoExtraResponseDTO> ingreso =
-                ingresoExtraService.getIngresoExtra(id);
+        IngresoExtraResponseDTO ingreso =
+                ingresoExtraService.getIngresoExtra(id).orElseThrow();
 
-        return ingreso
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        EntityModel<IngresoExtraResponseDTO> model = EntityModel.of(ingreso);
+
+        model.add(
+                linkTo(
+                        methodOn(IngresoExtraController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(IngresoExtraController.class).listar()
+                ).withRel("Todos-los-ingresos-extras")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear ingreso extra", description = "Registra un nuevo ingreso extra")

@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Reportes mensuales", description = "Operaciones relacionadas con reportes mensuales financieros")
 @RestController
@@ -46,21 +49,29 @@ public class ReporteMensualController {
     // BUSCAR POR ID
     @Operation(summary = "Buscar reporte por ID", description = "Retorna un reporte mensual segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<ReporteMensualResponseDTO>
+    public EntityModel<ReporteMensualResponseDTO>
     buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<ReporteMensualResponseDTO> reporte =
-                service.getReporte(id);
+        ReporteMensualResponseDTO reporte =
+                service.getReporte(id).orElseThrow();
 
-        return reporte
-                .map(ResponseEntity::ok)
-                .orElse(
-                        ResponseEntity
-                                .notFound()
-                                .build()
-                );
+        EntityModel<ReporteMensualResponseDTO> model = EntityModel.of(reporte);
+
+        model.add(
+                linkTo(
+                        methodOn(ReporteMensualController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(ReporteMensualController.class).listar()
+                ).withRel("Todos-los-reportes")
+        );
+
+        return model;
     }
 
     // GUARDAR

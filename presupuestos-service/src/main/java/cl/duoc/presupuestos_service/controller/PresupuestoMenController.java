@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Presupuestos mensuales", description = "Operaciones relacionadas con presupuestos mensuales de usuarios")
 @RestController
@@ -37,15 +40,27 @@ public class PresupuestoMenController {
 
     @Operation(summary = "Buscar presupuesto por ID", description = "Retorna un presupuesto mensual segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<PresupuestoMenDTO> buscarPorId(
+    public EntityModel<PresupuestoMenDTO> buscarPorId(
             @PathVariable Integer id
     ) {
-        Optional<PresupuestoMenDTO> presupuesto =
-                presuMenService.getPresupuesto(id);
+        PresupuestoMenDTO presupuesto =
+                presuMenService.getPresupuesto(id).orElseThrow();
 
-        return presupuesto
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build()); // 404
+        EntityModel<PresupuestoMenDTO> model = EntityModel.of(presupuesto);
+
+        model.add(
+                linkTo(
+                        methodOn(PresupuestoMenController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(PresupuestoMenController.class).listar()
+                ).withRel("Todos-los-presupuestos")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear presupuesto", description = "Registra un nuevo presupuesto mensual")

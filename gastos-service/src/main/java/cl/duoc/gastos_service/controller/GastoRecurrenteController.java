@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Gastos recurrentes", description = "Operaciones relacionadas con gastos recurrentes de usuarios")
 @RestController
@@ -38,16 +41,28 @@ public class GastoRecurrenteController {
 
     @Operation(summary = "Buscar gasto recurrente por ID", description = "Retorna un gasto recurrente segun su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<GastoRecurrenteResponseDTO> buscarPorId(
+    public EntityModel<GastoRecurrenteResponseDTO> buscarPorId(
             @PathVariable Integer id
     ) {
 
-        Optional<GastoRecurrenteResponseDTO> gastoRecurrente =
-                gastoRecurrenteService.getGastoRecurrente(id);
+        GastoRecurrenteResponseDTO gastoRecurrente =
+                gastoRecurrenteService.getGastoRecurrente(id).orElseThrow();
 
-        return gastoRecurrente
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        EntityModel<GastoRecurrenteResponseDTO> model = EntityModel.of(gastoRecurrente);
+
+        model.add(
+                linkTo(
+                        methodOn(GastoRecurrenteController.class).buscarPorId(id)
+                ).withSelfRel()
+        );
+
+        model.add(
+                linkTo(
+                        methodOn(GastoRecurrenteController.class).listar()
+                ).withRel("Todos-los-gastos-recurrentes")
+        );
+
+        return model;
     }
 
     @Operation(summary = "Crear gasto recurrente", description = "Registra un nuevo gasto recurrente")
