@@ -1,4 +1,4 @@
-#Proyecto gestor de finanzas.
+# Proyecto gestor de finanzas.
 
 Desarrollo Fullstack 1 de DUOC UC.
 
